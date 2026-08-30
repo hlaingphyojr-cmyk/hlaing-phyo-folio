@@ -91,6 +91,7 @@ const NAV_LINKS = [
   { href: "#skills", label: "Skills" },
   { href: "#projects", label: "Projects" },
   { href: "#education", label: "Education" },
+  { href: "#contact", label: "Contact" },
 ];
 
 function Nav({ dark, toggle }: { dark: boolean; toggle: () => void }) {
