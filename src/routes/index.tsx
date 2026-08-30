@@ -443,6 +443,161 @@ function Education() {
   );
 }
 
+const CONTACT_CARDS = [
+  {
+    icon: Mail,
+    label: "Email",
+    value: EMAIL,
+    href: `mailto:${EMAIL}`,
+    onClick: () => copyText(EMAIL, "Email"),
+  },
+  {
+    icon: Phone,
+    label: "Phone",
+    value: PHONE,
+    href: `tel:${PHONE.replace(/\s/g, "")}`,
+    onClick: () => copyText(PHONE, "Phone number"),
+  },
+  {
+    icon: MapPin,
+    label: "Location",
+    value: "Taungtha, Mandalay, Myanmar",
+    href: "https://www.google.com/maps/search/?api=1&query=Taungtha+Mandalay+Myanmar",
+  },
+  {
+    icon: Github,
+    label: "GitHub",
+    value: "github.com/hlaingphyojr-cmyk",
+    href: GITHUB_URL,
+  },
+];
+
+function ContactForm() {
+  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setForm((f) => ({ ...f, [key]: e.target.value }));
+    setErrors((er) => ({ ...er, [key]: "" }));
+  };
+
+  const validate = () => {
+    const next: Record<string, string> = {};
+    if (!form.name.trim()) next.name = "Name is required";
+    if (!form.email.trim()) next.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) next.email = "Enter a valid email";
+    if (!form.subject.trim()) next.subject = "Subject is required";
+    if (!form.message.trim()) next.message = "Message is required";
+    else if (form.message.trim().length < 10) next.message = "Message is too short (min 10 chars)";
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  };
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) return;
+    toast.success("Message sent! Thank you for reaching out.");
+    setForm({ name: "", email: "", subject: "", message: "" });
+  };
+
+  const field = (
+    name: keyof typeof form,
+    label: string,
+    type = "text",
+    textarea = false,
+  ) => (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={`field-${name}`} className="text-sm font-medium text-foreground">
+        {label}
+      </label>
+      {textarea ? (
+        <textarea
+          id={`field-${name}`}
+          rows={5}
+          value={form[name]}
+          onChange={set(name)}
+          placeholder={`Your ${label.toLowerCase()}...`}
+          className="resize-none rounded-lg border border-border bg-background/60 px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/20"
+        />
+      ) : (
+        <input
+          id={`field-${name}`}
+          type={type}
+          value={form[name]}
+          onChange={set(name)}
+          placeholder={`Your ${label.toLowerCase()}...`}
+          className="rounded-lg border border-border bg-background/60 px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/20"
+        />
+      )}
+      {errors[name] && <span className="text-xs text-destructive">{errors[name]}</span>}
+    </div>
+  );
+
+  return (
+    <form onSubmit={onSubmit} noValidate className="glass-card flex flex-col gap-4 p-6 sm:p-8">
+      <div className="grid gap-4 sm:grid-cols-2">
+        {field("name", "Name")}
+        {field("email", "Email", "email")}
+      </div>
+      {field("subject", "Subject")}
+      {field("message", "Message", "text", true)}
+      <button
+        type="submit"
+        className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-transform hover:scale-[1.02]"
+      >
+        <Send className="h-4 w-4" /> Send Message
+      </button>
+    </form>
+  );
+}
+
+function Contact() {
+  return (
+    <Section id="contact" title="Get In Touch" icon={Mail}>
+      <p className="mb-8 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+        Feel free to reach out for internship opportunities or collaborations!
+      </p>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
+          {CONTACT_CARDS.map((c) => {
+            const Icon = c.icon;
+            const inner = (
+              <div className="glass-card flex h-full flex-col gap-3 p-6 transition-transform hover:scale-[1.01]">
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/15 text-primary">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <div>
+                  <p className="text-xs font-semibold tracking-wider text-primary uppercase">{c.label}</p>
+                  <p className="mt-1 break-words text-sm font-medium text-foreground">{c.value}</p>
+                </div>
+              </div>
+            );
+            if (c.onClick) {
+              return (
+                <button key={c.label} onClick={c.onClick} className="text-left">
+                  {inner}
+                </button>
+              );
+            }
+            return (
+              <a
+                key={c.label}
+                href={c.href}
+                target="_blank"
+                rel="noreferrer"
+                className="block"
+              >
+                {inner}
+              </a>
+            );
+          })}
+        </div>
+        <ContactForm />
+      </div>
+    </Section>
+  );
+}
+
 function Footer() {
   return (
     <footer className="border-t border-border py-10">
