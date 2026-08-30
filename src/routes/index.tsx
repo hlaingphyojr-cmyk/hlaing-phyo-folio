@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import emailjs from "@emailjs/browser";
 import { toast } from "sonner";
 import {
   ArrowUp,
