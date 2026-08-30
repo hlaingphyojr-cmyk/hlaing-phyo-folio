@@ -646,6 +646,7 @@ function Index() {
         <Skills />
         <Projects />
         <Education />
+        <Contact />
       </main>
       <Footer />
     </div>
