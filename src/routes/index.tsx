@@ -1,8 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-
-import { useState } from "react";
 import {
   ArrowUp,
   Award,
