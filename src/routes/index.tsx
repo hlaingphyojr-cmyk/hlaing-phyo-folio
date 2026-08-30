@@ -60,10 +60,29 @@ function useTheme() {
 }
 
 function copyText(text: string, label: string) {
-  navigator.clipboard.writeText(text).then(
-    () => toast.success(`${label} copied to clipboard`),
-    () => toast.error("Copy failed"),
-  );
+  const fallback = () => {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand("copy");
+      toast.success(`${label} copied to clipboard`);
+    } catch {
+      toast.error("Copy failed");
+    }
+    ta.remove();
+  };
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(text).then(
+      () => toast.success(`${label} copied to clipboard`),
+      fallback,
+    );
+  } else {
+    fallback();
+  }
 }
 
 const NAV_LINKS = [
