@@ -587,9 +587,18 @@ function ContactForm() {
       </div>
       <button
         type="submit"
-        className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-transform hover:scale-[1.02]"
+        disabled={sending}
+        className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-transform hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:scale-100"
       >
-        <Send className="h-4 w-4" /> Send Message
+        {sending ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" /> Sending...
+          </>
+        ) : (
+          <>
+            <Send className="h-4 w-4" /> Send Message
+          </>
+        )}
       </button>
     </form>
   );
