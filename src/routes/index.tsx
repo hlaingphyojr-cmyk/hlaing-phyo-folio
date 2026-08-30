@@ -17,6 +17,7 @@ import {
   MapPin,
   Moon,
   Phone,
+  Send,
   Sparkles,
   Sun,
   Users,
@@ -90,6 +91,7 @@ const NAV_LINKS = [
   { href: "#skills", label: "Skills" },
   { href: "#projects", label: "Projects" },
   { href: "#education", label: "Education" },
+  { href: "#contact", label: "Contact" },
 ];
 
 function Nav({ dark, toggle }: { dark: boolean; toggle: () => void }) {
@@ -441,6 +443,184 @@ function Education() {
   );
 }
 
+const CONTACT_CARDS = [
+  {
+    icon: Mail,
+    label: "Email",
+    value: EMAIL,
+    href: `mailto:${EMAIL}`,
+    onClick: () => copyText(EMAIL, "Email"),
+  },
+  {
+    icon: Phone,
+    label: "Phone",
+    value: PHONE,
+    href: `tel:${PHONE.replace(/\s/g, "")}`,
+    onClick: () => copyText(PHONE, "Phone number"),
+  },
+  {
+    icon: MapPin,
+    label: "Location",
+    value: "Taungtha, Mandalay, Myanmar",
+    href: "https://www.google.com/maps/search/?api=1&query=Taungtha+Mandalay+Myanmar",
+  },
+  {
+    icon: Github,
+    label: "GitHub",
+    value: "github.com/hlaingphyojr-cmyk",
+    href: GITHUB_URL,
+  },
+];
+
+function ContactForm() {
+  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+  const [errors, setErrors] = useState({ name: "", email: "", subject: "", message: "" });
+
+  const update =
+    (key: keyof typeof form) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const value = e.target.value;
+      setForm((f) => ({ ...f, [key]: value }));
+      setErrors((er) => ({ ...er, [key]: "" }));
+    };
+
+  const validate = () => {
+    const next = { name: "", email: "", subject: "", message: "" };
+    if (!form.name.trim()) next.name = "Name is required";
+    if (!form.email.trim()) next.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) next.email = "Enter a valid email";
+    if (!form.subject.trim()) next.subject = "Subject is required";
+    if (!form.message.trim()) next.message = "Message is required";
+    else if (form.message.trim().length < 10) next.message = "Message is too short (min 10 chars)";
+    setErrors(next);
+    return !next.name && !next.email && !next.subject && !next.message;
+  };
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) return;
+    toast.success("Message sent! Thank you for reaching out.");
+    setForm({ name: "", email: "", subject: "", message: "" });
+  };
+
+  const inputCls =
+    "rounded-lg border border-border bg-background/60 px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/20";
+
+  return (
+    <form onSubmit={onSubmit} noValidate className="glass-card flex flex-col gap-4 p-6 sm:p-8">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="field-name" className="text-sm font-medium text-foreground">
+            Name
+          </label>
+          <input
+            id="field-name"
+            value={form.name}
+            onChange={update("name")}
+            placeholder="Your name..."
+            className={inputCls}
+          />
+          {errors.name && <span className="text-xs text-destructive">{errors.name}</span>}
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="field-email" className="text-sm font-medium text-foreground">
+            Email
+          </label>
+          <input
+            id="field-email"
+            type="email"
+            value={form.email}
+            onChange={update("email")}
+            placeholder="Your email..."
+            className={inputCls}
+          />
+          {errors.email && <span className="text-xs text-destructive">{errors.email}</span>}
+        </div>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="field-subject" className="text-sm font-medium text-foreground">
+          Subject
+        </label>
+        <input
+          id="field-subject"
+          value={form.subject}
+          onChange={update("subject")}
+          placeholder="Your subject..."
+          className={inputCls}
+        />
+        {errors.subject && <span className="text-xs text-destructive">{errors.subject}</span>}
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="field-message" className="text-sm font-medium text-foreground">
+          Message
+        </label>
+        <textarea
+          id="field-message"
+          rows={5}
+          value={form.message}
+          onChange={update("message")}
+          placeholder="Your message..."
+          className={`resize-none ${inputCls}`}
+        />
+        {errors.message && <span className="text-xs text-destructive">{errors.message}</span>}
+      </div>
+      <button
+        type="submit"
+        className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-transform hover:scale-[1.02]"
+      >
+        <Send className="h-4 w-4" /> Send Message
+      </button>
+    </form>
+  );
+}
+
+function Contact() {
+  return (
+    <Section id="contact" title="Get In Touch" icon={Mail}>
+      <p className="mb-8 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+        Feel free to reach out for internship opportunities or collaborations!
+      </p>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
+          {CONTACT_CARDS.map((c) => {
+            const Icon = c.icon;
+            const inner = (
+              <div className="glass-card flex h-full flex-col gap-3 p-6 transition-transform hover:scale-[1.01]">
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/15 text-primary">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <div>
+                  <p className="text-xs font-semibold tracking-wider text-primary uppercase">{c.label}</p>
+                  <p className="mt-1 break-words text-sm font-medium text-foreground">{c.value}</p>
+                </div>
+              </div>
+            );
+            if (c.onClick) {
+              return (
+                <button key={c.label} onClick={c.onClick} className="text-left">
+                  {inner}
+                </button>
+              );
+            }
+            return (
+              <a
+                key={c.label}
+                href={c.href}
+                target="_blank"
+                rel="noreferrer"
+                className="block"
+              >
+                {inner}
+              </a>
+            );
+          })}
+        </div>
+        <ContactForm />
+      </div>
+    </Section>
+  );
+}
+
 function Footer() {
   return (
     <footer className="border-t border-border py-10">
@@ -489,6 +669,7 @@ function Index() {
         <Skills />
         <Projects />
         <Education />
+        <Contact />
       </main>
       <Footer />
     </div>
