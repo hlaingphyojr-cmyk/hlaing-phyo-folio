@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import emailjs from "@emailjs/browser";
 import { toast } from "sonner";
 import {
   ArrowUp,
@@ -13,6 +14,7 @@ import {
   Globe,
   GraduationCap,
   Languages,
+  Loader2,
   Mail,
   MapPin,
   Moon,
@@ -475,6 +477,7 @@ const CONTACT_CARDS = [
 function ContactForm() {
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [errors, setErrors] = useState({ name: "", email: "", subject: "", message: "" });
+  const [sending, setSending] = useState(false);
 
   const update =
     (key: keyof typeof form) =>
@@ -496,11 +499,29 @@ function ContactForm() {
     return !next.name && !next.email && !next.subject && !next.message;
   };
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
-    toast.success("Message sent! Thank you for reaching out.");
-    setForm({ name: "", email: "", subject: "", message: "" });
+    if (!validate() || sending) return;
+    setSending(true);
+    try {
+      await emailjs.send(
+        import.meta.env["VITE_EMAILJS_SERVICE_ID"],
+        import.meta.env["VITE_EMAILJS_TEMPLATE_ID"],
+        {
+          from_name: form.name,
+          reply_to: form.email,
+          subject: form.subject,
+          message: form.message,
+        },
+        import.meta.env["VITE_EMAILJS_PUBLIC_KEY"],
+      );
+      toast.success("Message sent! Thank you for reaching out.");
+      setForm({ name: "", email: "", subject: "", message: "" });
+    } catch {
+      toast.error("Failed to send message. Please try again later.");
+    } finally {
+      setSending(false);
+    }
   };
 
   const inputCls =
@@ -566,9 +587,18 @@ function ContactForm() {
       </div>
       <button
         type="submit"
-        className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-transform hover:scale-[1.02]"
+        disabled={sending}
+        className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-transform hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:scale-100"
       >
-        <Send className="h-4 w-4" /> Send Message
+        {sending ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" /> Sending...
+          </>
+        ) : (
+          <>
+            <Send className="h-4 w-4" /> Send Message
+          </>
+        )}
       </button>
     </form>
   );
