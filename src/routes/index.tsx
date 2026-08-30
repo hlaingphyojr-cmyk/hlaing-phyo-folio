@@ -14,6 +14,7 @@ import {
   Globe,
   GraduationCap,
   Languages,
+  Loader2,
   Mail,
   MapPin,
   Moon,
@@ -476,6 +477,7 @@ const CONTACT_CARDS = [
 function ContactForm() {
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [errors, setErrors] = useState({ name: "", email: "", subject: "", message: "" });
+  const [sending, setSending] = useState(false);
 
   const update =
     (key: keyof typeof form) =>
