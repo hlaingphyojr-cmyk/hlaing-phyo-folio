@@ -474,15 +474,18 @@ const CONTACT_CARDS = [
 
 function ContactForm() {
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState({ name: "", email: "", subject: "", message: "" });
 
-  const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm((f) => ({ ...f, [key]: e.target.value }));
-    setErrors((er) => ({ ...er, [key]: "" }));
-  };
+  const update =
+    (key: keyof typeof form) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const value = e.target.value;
+      setForm((f) => ({ ...f, [key]: value }));
+      setErrors((er) => ({ ...er, [key]: "" }));
+    };
 
   const validate = () => {
-    const next: Record<string, string> = {};
+    const next = { name: "", email: "", subject: "", message: "" };
     if (!form.name.trim()) next.name = "Name is required";
     if (!form.email.trim()) next.email = "Email is required";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) next.email = "Enter a valid email";
@@ -490,7 +493,7 @@ function ContactForm() {
     if (!form.message.trim()) next.message = "Message is required";
     else if (form.message.trim().length < 10) next.message = "Message is too short (min 10 chars)";
     setErrors(next);
-    return Object.keys(next).length === 0;
+    return !next.name && !next.email && !next.subject && !next.message;
   };
 
   const onSubmit = (e: React.FormEvent) => {
@@ -500,47 +503,67 @@ function ContactForm() {
     setForm({ name: "", email: "", subject: "", message: "" });
   };
 
-  const field = (
-    name: keyof typeof form,
-    label: string,
-    type = "text",
-    textarea = false,
-  ) => (
-    <div className="flex flex-col gap-1.5">
-      <label htmlFor={`field-${name}`} className="text-sm font-medium text-foreground">
-        {label}
-      </label>
-      {textarea ? (
-        <textarea
-          id={`field-${name}`}
-          rows={5}
-          value={form[name]}
-          onChange={set(name)}
-          placeholder={`Your ${label.toLowerCase()}...`}
-          className="resize-none rounded-lg border border-border bg-background/60 px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/20"
-        />
-      ) : (
-        <input
-          id={`field-${name}`}
-          type={type}
-          value={form[name]}
-          onChange={set(name)}
-          placeholder={`Your ${label.toLowerCase()}...`}
-          className="rounded-lg border border-border bg-background/60 px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/20"
-        />
-      )}
-      {errors[name] && <span className="text-xs text-destructive">{errors[name]}</span>}
-    </div>
-  );
+  const inputCls =
+    "rounded-lg border border-border bg-background/60 px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/20";
 
   return (
     <form onSubmit={onSubmit} noValidate className="glass-card flex flex-col gap-4 p-6 sm:p-8">
       <div className="grid gap-4 sm:grid-cols-2">
-        {field("name", "Name")}
-        {field("email", "Email", "email")}
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="field-name" className="text-sm font-medium text-foreground">
+            Name
+          </label>
+          <input
+            id="field-name"
+            value={form.name}
+            onChange={update("name")}
+            placeholder="Your name..."
+            className={inputCls}
+          />
+          {errors.name && <span className="text-xs text-destructive">{errors.name}</span>}
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="field-email" className="text-sm font-medium text-foreground">
+            Email
+          </label>
+          <input
+            id="field-email"
+            type="email"
+            value={form.email}
+            onChange={update("email")}
+            placeholder="Your email..."
+            className={inputCls}
+          />
+          {errors.email && <span className="text-xs text-destructive">{errors.email}</span>}
+        </div>
       </div>
-      {field("subject", "Subject")}
-      {field("message", "Message", "text", true)}
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="field-subject" className="text-sm font-medium text-foreground">
+          Subject
+        </label>
+        <input
+          id="field-subject"
+          value={form.subject}
+          onChange={update("subject")}
+          placeholder="Your subject..."
+          className={inputCls}
+        />
+        {errors.subject && <span className="text-xs text-destructive">{errors.subject}</span>}
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="field-message" className="text-sm font-medium text-foreground">
+          Message
+        </label>
+        <textarea
+          id="field-message"
+          rows={5}
+          value={form.message}
+          onChange={update("message")}
+          placeholder="Your message..."
+          className={`resize-none ${inputCls}`}
+        />
+        {errors.message && <span className="text-xs text-destructive">{errors.message}</span>}
+      </div>
       <button
         type="submit"
         className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-transform hover:scale-[1.02]"
